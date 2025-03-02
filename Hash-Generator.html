@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SHA-3 Hash Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin: 10px 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    select, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    #output, #explanation {
+      margin-top: 20px;
+      word-wrap: break-word;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 5px;
+      text-align: left;
+      line-height: 1.6;
+    }
+    h2 {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>SHA-3 Hash Generator</h1>
+  
+  <h3>Enter Text to Hash:</h3>
+  <textarea id="inputText" placeholder="Type or paste your text here"></textarea>
+  
+  <div>
+    <label for="hashType">Select Hash Type:</label>
+    <select id="hashType">
+      <option value="SHA3-512">SHA3-512</option>
+      <option value="SHA3-384">SHA3-384</option>
+      <option value="SHA3-256">SHA3-256</option>
+      <option value="SHA3-224">SHA3-224</option>
+      <option value="SHAKE128">SHAKE128 (256-bit output)</option>
+      <option value="SHAKE256">SHAKE256 (512-bit output)</option>
+    </select>
+  </div>
+  
+  <button onclick="generateHash()">Generate Hash</button>
+  
+  <h3>Result:</h3>
+  <div id="output"></div>
+  
+  <h2>Application Explanation</h2>
+  <div id="explanation">
+    <p>
+      This SHA‑3 Hash Generator app uses the <a href="https://github.com/emn178/js-sha3" target="_blank">js‑sha3</a> library to create cryptographic hashes of any text you input. It supports several variants of the SHA‑3 family, each offering different output sizes and a corresponding number of unique possibilities:
+    </p>
+    <ul>
+      <li>
+        <strong>SHA3-512:</strong> Produces a 512‑bit hash, providing <em>2<sup>512</sup></em> possible hash values.
+      </li>
+      <li>
+        <strong>SHA3-384:</strong> Produces a 384‑bit hash, which results in <em>2<sup>384</sup></em> different outcomes.
+      </li>
+      <li>
+        <strong>SHA3-256:</strong> Generates a 256‑bit hash, meaning there are <em>2<sup>256</sup></em> possible combinations.
+      </li>
+      <li>
+        <strong>SHA3-224:</strong> Yields a 224‑bit hash, offering <em>2<sup>224</sup></em> distinct possibilities.
+      </li>
+      <li>
+        <strong>SHAKE128 (256‑bit output):</strong> This is an extendable‑output function (XOF) configured to produce a 256‑bit hash, giving <em>2<sup>256</sup></em> possibilities.
+      </li>
+      <li>
+        <strong>SHAKE256 (512‑bit output):</strong> Another XOF variant configured for a 512‑bit output, resulting in <em>2<sup>512</sup></em> possible outcomes.
+      </li>
+    </ul>
+    <p>
+      <strong>Input Text Limitations:</strong> The text area accepts any text encoded in UTF‑8. This means you can include letters, numbers, symbols, whitespace, and even emojis. There is no hard limit on the number of characters; however, extremely large inputs might affect performance based on your device and browser capabilities.
+    </p>
+    <p>
+      <strong>How the App Works:</strong> Simply type or paste your text into the input area, choose the desired hash algorithm from the dropdown menu, and click the "Generate Hash" button (or press Enter without Shift). The selected algorithm then processes your text using the js‑sha3 library, and the computed hash is displayed in the result section. Any errors (like missing input) are also handled gracefully.
+    </p>
+  </div>
+  
+  <!-- Include js-sha3 library from CDN -->
+  <script src="sha3.min.js"></script>
+  <script>
+    function generateHash() {
+      const inputText = document.getElementById('inputText').value;
+      const hashType = document.getElementById('hashType').value;
+      const output = document.getElementById('output');
+
+      if (!inputText) {
+        output.textContent = "Please enter some text to hash";
+        return;
+      }
+      
+      let hashHex = "";
+      try {
+        switch (hashType) {
+          case "SHA3-512":
+            hashHex = sha3_512(inputText);
+            break;
+          case "SHA3-384":
+            hashHex = sha3_384(inputText);
+            break;
+          case "SHA3-256":
+            hashHex = sha3_256(inputText);
+            break;
+          case "SHA3-224":
+            hashHex = sha3_224(inputText);
+            break;
+          case "SHAKE128":
+            // For SHAKE functions, the second argument is the desired output length in bits.
+            hashHex = shake128(inputText, 256);
+            break;
+          case "SHAKE256":
+            hashHex = shake256(inputText, 512);
+            break;
+          default:
+            output.textContent = "Unsupported hash type";
+            return;
+        }
+        output.textContent = `${hashType} Hash:\n${hashHex}`;
+      } catch (e) {
+        output.textContent = "Error generating hash: " + e.message;
+      }
+    }
+    
+    // Optional: Trigger hashing on Enter key (without Shift)
+    document.getElementById('inputText').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        generateHash();
+      }
+    });
+  </script>
+</body>
+</html>
+
